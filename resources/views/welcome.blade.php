@@ -55,6 +55,9 @@
                 </thead>
                 <tbody id="articles">
                     @if ($articles)
+                    @php
+                        dd($articles);
+                    @endphp
                         @foreach ($articles as $article)
                             <tr>
                                 <td>{{$article->title}}</td>
