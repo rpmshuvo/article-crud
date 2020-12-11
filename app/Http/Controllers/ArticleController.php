@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Article;
 use App\Http\Resources\Article as ArticleResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
@@ -35,15 +36,26 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
 
-        $article = $request->isMethod('put') ? Article::findOrFail($request->article_id) : new Article;
-        $article->id = $request->article_id;
-        $article->title = $request->title;
-        $article->body = $request->body;
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'body' => 'required'
+        ]);
+       
 
+        if ($validator->fails()) {
+            return response()->json(['response' => $validator->messages(), 'success' => false ]);
+        } else {
 
-        if ($article->save()) {
-            return new ArticleResource($article);
-            // return response()->json(['article' => new ArticleResource($article)]);
+            $article = $request->isMethod('put') ? Article::findOrFail($request->article_id) : new Article;
+            $article->id = $request->article_id;
+            $article->title = $request->title;
+            $article->body = $request->body;
+    
+    
+            if ($article->save()) {
+                return new ArticleResource($article);
+                // return response()->json(['article' => new ArticleResource($article)]);
+            }
         }
 
     }

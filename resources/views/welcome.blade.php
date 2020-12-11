@@ -34,11 +34,11 @@
             <form id="articleForm">
                 <div class="form-group">
                     <label for="">Title</label>
-                    <input type="text" name="title" id="title" class="form-control">
+                    <input type="text" name="title" id="title" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="">Body</label>
-                    <textarea name="body" id="body" class="form-control"></textarea>
+                    <textarea name="body" id="body" class="form-control" required></textarea>
                 </div>
                 <input type="hidden" id="article_id" name="article_id" value="">
                 <input type="submit" value="submit" class="btn btn-primary">
@@ -55,9 +55,6 @@
                 </thead>
                 <tbody id="articles">
                     @if ($articles)
-                    @php
-                        dd($articles);
-                    @endphp
                         @foreach ($articles as $article)
                             <tr>
                                 <td>{{$article->title}}</td>
@@ -158,33 +155,53 @@
                 //Insert Article using API
                 function addArticle(title, body) {
                     let article_id = $('#article_id').val();
-    
-                    if (article_id != '') {
-                        $.ajax({
-                            type: "PUT",
-                            url:'/api/article',
-                            // headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                            data: {
-                                title :title, 
-                                body :body, 
-                                article_id:article_id 
-                            },
-                            // dataType: "text",
-                        }).done(function (article) {
-                            alert('Article #'+ article.id +'Updated');
-                            location.reload();
-                        });
 
+                    if (title != '' && body != '') {
+                        
+                        if (article_id != '') {
+                            $.ajax({
+                                type: "PUT",
+                                url:'/api/article',
+                                // headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                                data: {
+                                    title :title, 
+                                    body :body, 
+                                    article_id:article_id 
+                                },
+                                // dataType: "text",
+                            }).done(function (article) {
+                                if(article.success != false){
+                                    alert('Article #'+ article.id +'Updated');
+                                    location.reload();
+                                }else{
+                                    
+                                    $.each(article.response, function (key, item) {
+                                        alert(article.response[key]);
+                                    });
+                                }
+                            });
+    
+                        }else{
+                            $.ajax({
+                                type:'POST',
+                                url:'/api/article',
+                                data: {title:title, body:body}
+                            }).done(function (article) {
+                                if(article.success != false){
+                                    alert('Article #'+ article.id +'added');
+                                    location.reload();
+                                }else{
+                                    
+                                    $.each(article.response, function (key, item) {
+                                        alert(article.response[key]);
+                                    });
+                                }
+                            });
+                        }
                     }else{
-                        $.ajax({
-                            type:'POST',
-                            url:'/api/article',
-                            data: {title:title, body:body}
-                        }).done(function (article) {
-                            alert('Article #'+ article.id +'added');
-                            location.reload();
-                        });
+                        alert('Title can not be empty')
                     }
+    
     
                 }
     
